@@ -1,9 +1,9 @@
-interface StatCardProps {
+interface FlightStatCardProps {
     title: string;
     value: string | number;
 }
 
-function StatCard({ title, value }: StatCardProps) {
+function FlightStatCard({ title, value }: FlightStatCardProps) {
     return (
         <div className="stat-card">
             <h3>{title}</h3>
@@ -12,4 +12,4 @@ function StatCard({ title, value }: StatCardProps) {
     );
 }
 
-export default StatCard;
+export default FlightStatCard;

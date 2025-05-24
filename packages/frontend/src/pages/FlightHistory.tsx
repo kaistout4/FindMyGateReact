@@ -1,5 +1,5 @@
-import StatCard from '../components/StatCard';
-import HistoryItem from '../components/HistoryItem';
+import FlightStatCard from '../components/FlightStatCard';
+import FlightHistoryItem from '../components/FlightHistoryItem';
 
 interface FlightHistoryItem {
     id: string;
@@ -29,11 +29,11 @@ function FlightHistory() {
             <section>
                 <h2>Statistics</h2>
                 <div className="stats-grid">
-                    <StatCard title="Total flights" value={statistics.totalFlights} />
-                    <StatCard title="Favorite airport" value={statistics.favoriteAirport} />
-                    <StatCard title="Avg. Time" value={statistics.avgTime} />
-                    <StatCard title="Total miles" value={statistics.totalMiles} />
-                    <StatCard title="Longest flight" value={statistics.longestFlight} />
+                    <FlightStatCard title="Total flights" value={statistics.totalFlights} />
+                    <FlightStatCard title="Favorite airport" value={statistics.favoriteAirport} />
+                    <FlightStatCard title="Avg. Time" value={statistics.avgTime} />
+                    <FlightStatCard title="Total miles" value={statistics.totalMiles} />
+                    <FlightStatCard title="Longest flight" value={statistics.longestFlight} />
                 </div>
             </section>
 
@@ -41,7 +41,7 @@ function FlightHistory() {
                 <h2>History</h2>
                 <div className="flight-history-list">
                     {flightHistory.map((item) => (
-                        <HistoryItem key={item.id} {...item} />
+                        <FlightHistoryItem key={item.id} {...item} />
                     ))}
                 </div>
             </section>

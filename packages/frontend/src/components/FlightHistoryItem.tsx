@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
-interface HistoryItemProps {
+interface FlightHistoryItemProps {
     id: string;
     flightNumber: string;
     date: string;
 }
 
-function HistoryItem({ id, flightNumber, date }: HistoryItemProps) {
+function FlightHistoryItem({ id, flightNumber, date }: FlightHistoryItemProps) {
     return (
         <Link to={`/flight/${id}`} className="history-link">
             <div className="history-item">
@@ -17,4 +17,4 @@ function HistoryItem({ id, flightNumber, date }: HistoryItemProps) {
     );
 }
 
-export default HistoryItem;
+export default FlightHistoryItem;
