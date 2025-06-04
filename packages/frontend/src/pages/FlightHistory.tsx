@@ -1,26 +1,19 @@
 import FlightStatCard from '../components/FlightStatCard';
 import FlightHistoryItem from '../components/FlightHistoryItem';
+import type { Flight } from '../App';
 
-interface FlightHistoryItem {
-    id: string;
-    flightNumber: string;
-    date: string;
+interface FlightHistoryProps {
+    flights: Flight[];
 }
 
-function FlightHistory() {
+function FlightHistory({ flights }: FlightHistoryProps) {
     const statistics = {
-        totalFlights: 3,
+        totalFlights: flights.length,
         favoriteAirport: 'SFO',
         avgTime: 'Noon',
         totalMiles: 4538,
         longestFlight: '6.5hr'
     };
-
-    const flightHistory: FlightHistoryItem[] = [
-        { id: '1', flightNumber: 'United 2646', date: 'April 13, 2023' },
-        { id: '2', flightNumber: 'United 4765', date: 'April 30, 2023' },
-        { id: '3', flightNumber: 'Alaska 6796', date: 'June 23, 2024' }
-    ];
 
     return (
         <main className="container">
@@ -40,8 +33,13 @@ function FlightHistory() {
             <section className="history-section">
                 <h2>History</h2>
                 <div className="flight-history-list">
-                    {flightHistory.map((item) => (
-                        <FlightHistoryItem key={item.id} {...item} />
+                    {flights.map((flight) => (
+                        <FlightHistoryItem 
+                            key={flight.id} 
+                            id={flight.id}
+                            flightNumber={flight.flightNumber}
+                            date={flight.date}
+                        />
                     ))}
                 </div>
             </section>

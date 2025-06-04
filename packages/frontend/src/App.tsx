@@ -4,6 +4,8 @@ import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import FlightDetail from './pages/FlightDetail';
 import FlightHistory from './pages/FlightHistory';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import './App.css';
 
 export interface Flight {
@@ -85,7 +87,9 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} />} />
                     <Route path="/flight/:id" element={<FlightDetail flights={flights} updateFlight={updateFlight} />} />
-                    <Route path="/history" element={<FlightHistory />} />
+                    <Route path="/history" element={<FlightHistory flights={flights} />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                 </Routes>
             </div>
         </Router>
