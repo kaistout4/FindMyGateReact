@@ -6,54 +6,14 @@ import FlightDetail from './pages/FlightDetail';
 import FlightHistory from './pages/FlightHistory';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { ValidRoutes } from "csc437-monorepo-backend/src/shared/ValidRoutes.ts";
+import { type IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 import './App.css';
 
-export interface Flight {
-    id: string;
-    flightNumber: string;
-    from: string;
-    to: string;
-    terminal: string;
-    gate: string;
-    departureTime: string;
-    date: string;
-}
-
 function App() {
-    const [flights, setFlights] = useState<Flight[]>([
-        {
-            id: '1',
-            flightNumber: 'United 2646',
-            from: 'SFO',
-            to: 'Portland',
-            terminal: 'T3',
-            gate: 'E5',
-            departureTime: '6:23 PM',
-            date: 'April 13'
-        },
-        {
-            id: '2',
-            flightNumber: 'Air Canada 1245',
-            from: 'Portland',
-            to: 'Portland',
-            terminal: 'T5',
-            gate: 'C8',
-            departureTime: '8:45 PM',
-            date: 'April 30'
-        },
-        {
-            id: '3',
-            flightNumber: 'Alaska 879',
-            from: 'Seattle',
-            to: 'Denver',
-            terminal: 'T2',
-            gate: 'B4',
-            departureTime: '1:15 PM',
-            date: 'May 5'
-        }
-    ]);
+    const [flights, setFlights] = useState<IApiFlightData[]>([]);
 
-    const updateFlight = (id: string, updatedFlight: Partial<Flight>) => {
+    const updateFlight = (id: string, updatedFlight: Partial<IApiFlightData>) => {
         setFlights(prevFlights => 
             prevFlights.map(flight => 
                 flight.id === id ? { ...flight, ...updatedFlight } : flight
@@ -62,7 +22,7 @@ function App() {
     };
 
     const addFlight = (flightNumber: string) => {
-        const newFlight: Flight = {
+        const newFlight: IApiFlightData = {
             id: Date.now().toString(),
             flightNumber: `Airline ${flightNumber}`,
             from: '',
@@ -70,7 +30,8 @@ function App() {
             terminal: '',
             gate: '',
             departureTime: '',
-            date: ''
+            date: '',
+            author: { id: 'temp-user', username: 'temp-user' }
         };
         setFlights(prevFlights => [...prevFlights, newFlight]);
         return newFlight.id;
@@ -85,11 +46,11 @@ function App() {
             <div className="app">
                 <Navigation />
                 <Routes>
-                    <Route path="/" element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} />} />
-                    <Route path="/flight/:id" element={<FlightDetail flights={flights} updateFlight={updateFlight} />} />
-                    <Route path="/history" element={<FlightHistory flights={flights} />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                    <Route path={ValidRoutes.HOME} element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} />} />
+                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={updateFlight} />} />
+                    <Route path={ValidRoutes.HISTORY} element={<FlightHistory flights={flights} />} />
+                    <Route path={ValidRoutes.LOGIN} element={<Login />} />
+                    <Route path={ValidRoutes.REGISTER} element={<Register />} />
                 </Routes>
             </div>
         </Router>

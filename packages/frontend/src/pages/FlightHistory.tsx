@@ -1,9 +1,9 @@
 import FlightStatCard from '../components/FlightStatCard';
 import FlightHistoryItem from '../components/FlightHistoryItem';
-import type { Flight } from '../App';
+import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 
 interface FlightHistoryProps {
-    flights: Flight[];
+    flights: IApiFlightData[];
 }
 
 function FlightHistory({ flights }: FlightHistoryProps) {

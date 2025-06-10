@@ -1,9 +1,9 @@
 import { useState, useId } from 'react';
 import FlightCard from '../components/FlightCard';
-import type { Flight } from '../App';
+import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 
 interface HomeProps {
-    flights: Flight[];
+    flights: IApiFlightData[];
     addFlight: (flightNumber: string) => string;
     deleteFlight: (id: string) => void;
 }

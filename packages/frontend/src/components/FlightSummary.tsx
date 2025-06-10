@@ -1,9 +1,9 @@
-import type { Flight } from '../App';
+import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 
 interface FlightSummaryProps {
-    flight: Flight;
+    flight: IApiFlightData;
     isEditing: boolean;
-    editForm: Flight;
+    editForm: IApiFlightData;
     handleChange: (field: string, value: string) => void;
     handleSubmit: (e: React.FormEvent) => void;
 }

@@ -4,11 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import FlightSummary from '../components/FlightSummary';
 import AdditionalInfo from '../components/AdditionalInfo';
-import type { Flight } from '../App';
+import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 
 interface FlightDetailProps {
-    flights: Flight[];
-    updateFlight: (id: string, updatedFlight: Partial<Flight>) => void;
+    flights: IApiFlightData[];
+    updateFlight: (id: string, updatedFlight: Partial<IApiFlightData>) => void;
 }
 
 function FlightDetail({ flights, updateFlight }: FlightDetailProps) {
@@ -17,7 +17,7 @@ function FlightDetail({ flights, updateFlight }: FlightDetailProps) {
     
     const flight = flights.find(f => f.id === id);
     
-    const [editForm, setEditForm] = useState<Flight>(flight || {
+    const [editForm, setEditForm] = useState<IApiFlightData>(flight || {
         id: '',
         flightNumber: '',
         from: '',
@@ -25,7 +25,11 @@ function FlightDetail({ flights, updateFlight }: FlightDetailProps) {
         terminal: '',
         gate: '',
         departureTime: '',
-        date: ''
+        date: '',
+        author: {
+            id: '',
+            username: ''
+        },
     });
     
     useEffect(() => {
