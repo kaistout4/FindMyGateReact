@@ -5,6 +5,11 @@ import { ValidRoutes } from "./shared/ValidRoutes";
 import { FLIGHTS } from "./common/ApiFlightData";
 
 dotenv.config(); // Read the .env file in the current working directory, and load values into process.env.
+
+function waitDuration(numMs: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, numMs));
+}
+
 const PORT = process.env.PORT || 3000;
 const STATIC_DIR = process.env.STATIC_DIR || "public";
 
@@ -16,7 +21,8 @@ app.get("/api/hello", (req: Request, res: Response) => {
     res.send("Hello, World");
 });
 
-app.get("/api/flights", (req: Request, res: Response) => {
+app.get("/api/flights", async (req: Request, res: Response) => {
+    await waitDuration(1000);
     res.json(FLIGHTS);
 });
 

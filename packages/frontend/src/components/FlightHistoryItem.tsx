@@ -8,7 +8,7 @@ interface FlightHistoryItemProps {
 
 function FlightHistoryItem({ id, flightNumber, date }: FlightHistoryItemProps) {
     return (
-        <Link to={`/flight/${id}`} className="history-link">
+        <Link to={`/flights/${id}`} className="history-link">
             <div className="history-item">
                 <span className="flight-info">{flightNumber}</span>
                 <span className="flight-date">{date}</span>

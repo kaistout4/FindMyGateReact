@@ -9,9 +9,11 @@ import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFligh
 interface FlightDetailProps {
     flights: IApiFlightData[];
     updateFlight: (id: string, updatedFlight: Partial<IApiFlightData>) => void;
+    isLoading: boolean;
+    hasError: boolean;
 }
 
-function FlightDetail({ flights, updateFlight }: FlightDetailProps) {
+function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDetailProps) {
     const { id } = useParams();
     const [isEditing, setIsEditing] = useState(false);
     
@@ -81,62 +83,72 @@ function FlightDetail({ flights, updateFlight }: FlightDetailProps) {
                 <h1>Flight Details</h1>
             </div>
 
-            <section>
-                <div className="flight-details-content">
-                    <FlightSummary
-                        flight={flight}
-                        isEditing={isEditing}
-                        editForm={editForm}
-                        handleChange={handleChange}
-                        handleSubmit={(e) => { e.preventDefault(); handleEditClick(); }}
-                    />
-        
-                    <div className="airline-logo">
-                        <div className="logo-circle">
-                            <span>Airline logo</span>
+            {isLoading ? (
+                <p>Loading flight details...</p>
+            ) : hasError ? (
+                <p>Error loading flight details. Please try again later.</p>
+            ) : !flight ? (
+                <p>Flight not found.</p>
+            ) : (
+                <>
+                    <section>
+                        <div className="flight-details-content">
+                            <FlightSummary
+                                flight={flight}
+                                isEditing={isEditing}
+                                editForm={editForm}
+                                handleChange={handleChange}
+                                handleSubmit={(e) => { e.preventDefault(); handleEditClick(); }}
+                            />
+                
+                            <div className="airline-logo">
+                                <div className="logo-circle">
+                                    <span>Airline logo</span>
+                                </div>
+                            </div>
                         </div>
+                    </section>
+
+                    <AdditionalInfo
+                        title="Travel tips"
+                        sections={[
+                            {
+                                subtitle: "Dining",
+                                content: "Bombuza, Blue Star, BurgerVille, Cafe Yumm!, Calliope, Capers Bistro"
+                            },
+                        ]}
+                    />
+
+                    <div className="edit-button-container">
+                        {isEditing ? (
+                            <>
+                                <button 
+                                    className="cancel-button"
+                                    onClick={handleCancel}
+                                    type="button"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    className="edit-flight-button"
+                                    onClick={handleEditClick}
+                                    type="button"
+                                >
+                                    Save
+                                </button>
+                            </>
+                        ) : (
+                            <button 
+                                className="edit-flight-button"
+                                onClick={handleEditClick}
+                                type="button"
+                            >
+                                Edit
+                            </button>
+                        )}
                     </div>
-                </div>
-            </section>
-
-            <AdditionalInfo
-                title="Travel tips"
-                sections={[
-                    {
-                        subtitle: "Dining",
-                        content: "Bombuza, Blue Star, BurgerVille, Cafe Yumm!, Calliope, Capers Bistro"
-                    },
-                ]}
-            />
-
-            <div className="edit-button-container">
-                {isEditing ? (
-                    <>
-                        <button 
-                            className="cancel-button"
-                            onClick={handleCancel}
-                            type="button"
-                        >
-                            Cancel
-                        </button>
-                        <button 
-                            className="edit-flight-button"
-                            onClick={handleEditClick}
-                            type="button"
-                        >
-                            Save
-                        </button>
-                    </>
-                ) : (
-                    <button 
-                        className="edit-flight-button"
-                        onClick={handleEditClick}
-                        type="button"
-                    >
-                        Edit
-                    </button>
-                )}
-            </div>
+                </>
+            )}
         </main>
     );
 }

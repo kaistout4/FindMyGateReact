@@ -6,9 +6,11 @@ interface HomeProps {
     flights: IApiFlightData[];
     addFlight: (flightNumber: string) => string;
     deleteFlight: (id: string) => void;
+    isLoading: boolean;
+    hasError: boolean;
 }
 
-function Home({ flights, addFlight, deleteFlight }: HomeProps) {
+function Home({ flights, addFlight, deleteFlight, isLoading, hasError }: HomeProps) {
     const [flightNumber, setFlightNumber] = useState('');
     const flightInputId = useId();
 
@@ -45,15 +47,21 @@ function Home({ flights, addFlight, deleteFlight }: HomeProps) {
 
             <section className="upcoming-flights-section">
                 <h2>Upcoming trips</h2>
-                <div className="flights-grid">
-                    {flights.map((flight) => (
-                        <FlightCard 
-                            key={flight.id} 
-                            {...flight} 
-                            onDelete={() => deleteFlight(flight.id)}
-                        />
-                    ))}
-                </div>
+                {isLoading ? (
+                    <p>Loading flights...</p>
+                ) : hasError ? (
+                    <p>Error loading flights. Please try again later.</p>
+                ) : (
+                    <div className="flights-grid">
+                        {flights.map((flight) => (
+                            <FlightCard 
+                                key={flight.id} 
+                                {...flight} 
+                                onDelete={() => deleteFlight(flight.id)}
+                            />
+                        ))}
+                    </div>
+                )}
             </section>
         </main>
     );

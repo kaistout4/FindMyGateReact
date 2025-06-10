@@ -37,7 +37,7 @@ function FlightCard({
             </div>
             <div className="flight-card-action">
                 <Link 
-                    to={`/flight/${id}`} 
+                    to={`/flights/${id}`} 
                     className="edit-button" 
                     aria-label="Edit flight"
                 >

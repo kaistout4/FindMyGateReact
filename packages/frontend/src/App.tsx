@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
@@ -12,6 +12,30 @@ import './App.css';
 
 function App() {
     const [flights, setFlights] = useState<IApiFlightData[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [hasError, setHasError] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Code in here will run when App is created
+        // (Note in dev mode App is created twice)
+        fetch("/api/flights")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setFlights(data);
+            })
+            .catch(error => {
+                console.error('Error fetching flights:', error);
+                setHasError(true);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    }, []);
 
     const updateFlight = (id: string, updatedFlight: Partial<IApiFlightData>) => {
         setFlights(prevFlights => 
@@ -46,9 +70,9 @@ function App() {
             <div className="app">
                 <Navigation />
                 <Routes>
-                    <Route path={ValidRoutes.HOME} element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} />} />
-                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={updateFlight} />} />
-                    <Route path={ValidRoutes.HISTORY} element={<FlightHistory flights={flights} />} />
+                    <Route path={ValidRoutes.HOME} element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} isLoading={isLoading} hasError={hasError} />} />
+                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={updateFlight} isLoading={isLoading} hasError={hasError} />} />
+                    <Route path={ValidRoutes.HISTORY} element={<FlightHistory flights={flights} isLoading={isLoading} hasError={hasError} />} />
                     <Route path={ValidRoutes.LOGIN} element={<Login />} />
                     <Route path={ValidRoutes.REGISTER} element={<Register />} />
                 </Routes>
