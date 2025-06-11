@@ -16,6 +16,8 @@ interface FlightDetailProps {
 function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDetailProps) {
     const { id } = useParams();
     const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     
     const flight = flights.find(f => f.id === id);
     
@@ -44,25 +46,48 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
         return <div className="container">Flight not found</div>;
     }
     
-    const handleEditClick = () => {
+    const handleEditClick = async () => {
         if (isEditing) {
-            updateFlight(id!, {
-                from: editForm.from,
-                to: editForm.to,
-                terminal: editForm.terminal,
-                gate: editForm.gate,
-                departureTime: editForm.departureTime
-            });
-            setIsEditing(false);
+            // Save functionality
+            setIsSaving(true);
+            setSaveError(null);
+            
+            try {
+                const response = await fetch("/api/flights");
+                if (!response.ok) {
+                    throw new Error('Failed to save flight');
+                }
+                
+                // Ignore response data as instructed
+                await response.json();
+                
+                // Update local state
+                updateFlight(id!, {
+                    from: editForm.from,
+                    to: editForm.to,
+                    terminal: editForm.terminal,
+                    gate: editForm.gate,
+                    departureTime: editForm.departureTime
+                });
+                
+                setIsEditing(false);
+                setSaveError(null);
+            } catch (error) {
+                setSaveError('Failed to save flight. Please try again.');
+            } finally {
+                setIsSaving(false);
+            }
         } else {
             setEditForm(flight);
             setIsEditing(true);
+            setSaveError(null);
         }
     };
     
     const handleCancel = () => {
         setEditForm(flight);
         setIsEditing(false);
+        setSaveError(null);
     };
     
     const handleChange = (field: string, value: string) => {
@@ -99,6 +124,7 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                                 editForm={editForm}
                                 handleChange={handleChange}
                                 handleSubmit={(e) => { e.preventDefault(); handleEditClick(); }}
+                                isSaving={isSaving}
                             />
                 
                             <div className="airline-logo">
@@ -109,15 +135,7 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                         </div>
                     </section>
 
-                    <AdditionalInfo
-                        title="Travel tips"
-                        sections={[
-                            {
-                                subtitle: "Dining",
-                                content: "Bombuza, Blue Star, BurgerVille, Cafe Yumm!, Calliope, Capers Bistro"
-                            },
-                        ]}
-                    />
+                    {saveError && <p style={{color: 'red'}}>{saveError}</p>}
 
                     <div className="edit-button-container">
                         {isEditing ? (
@@ -126,16 +144,29 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                                     className="cancel-button"
                                     onClick={handleCancel}
                                     type="button"
+                                    disabled={isSaving}
                                 >
                                     Cancel
                                 </button>
-                                <button 
-                                    className="edit-flight-button"
-                                    onClick={handleEditClick}
-                                    type="button"
-                                >
-                                    Save
-                                </button>
+                                {isSaving ? (
+                                    <div className="loading-spinner" style={{
+                                        width: '24px',
+                                        height: '24px',
+                                        border: '3px solid #f3f3f3',
+                                        borderTop: '3px solid var(--button-primary)',
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite',
+                                        margin: '0 auto'
+                                    }}></div>
+                                ) : (
+                                    <button 
+                                        className="edit-flight-button"
+                                        onClick={handleEditClick}
+                                        type="button"
+                                    >
+                                        Save
+                                    </button>
+                                )}
                             </>
                         ) : (
                             <button 
@@ -147,6 +178,16 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                             </button>
                         )}
                     </div>
+
+                    <AdditionalInfo
+                        title="Travel tips"
+                        sections={[
+                            {
+                                subtitle: "Dining",
+                                content: "Bombuza, Blue Star, BurgerVille, Cafe Yumm!, Calliope, Capers Bistro"
+                            },
+                        ]}
+                    />
                 </>
             )}
         </main>

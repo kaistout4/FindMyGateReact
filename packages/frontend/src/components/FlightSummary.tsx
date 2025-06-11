@@ -6,6 +6,7 @@ interface FlightSummaryProps {
     editForm: IApiFlightData;
     handleChange: (field: string, value: string) => void;
     handleSubmit: (e: React.FormEvent) => void;
+    isSaving?: boolean;
 }
 
 function FlightSummary({ 
@@ -13,7 +14,8 @@ function FlightSummary({
     isEditing, 
     editForm, 
     handleChange, 
-    handleSubmit 
+    handleSubmit,
+    isSaving = false
 }: FlightSummaryProps) {
     return (
         <div className="flight-summary">
@@ -28,6 +30,7 @@ function FlightSummary({
                             value={editForm.from}
                             onChange={(e) => handleChange('from', e.target.value)}
                             className="edit-input"
+                            disabled={isSaving}
                         />
                         <span> → </span>
                         <label htmlFor="to" className="sr-only">To:</label>
@@ -37,6 +40,7 @@ function FlightSummary({
                             value={editForm.to}
                             onChange={(e) => handleChange('to', e.target.value)}
                             className="edit-input"
+                            disabled={isSaving}
                         />
                     </div>
                     <div className="form-group">
@@ -47,6 +51,7 @@ function FlightSummary({
                             value={editForm.terminal}
                             onChange={(e) => handleChange('terminal', e.target.value)}
                             className="edit-input"
+                            disabled={isSaving}
                         />
                     </div>
                     <div className="form-group">
@@ -57,6 +62,7 @@ function FlightSummary({
                             value={editForm.gate}
                             onChange={(e) => handleChange('gate', e.target.value)}
                             className="edit-input"
+                            disabled={isSaving}
                         />
                     </div>
                     <p>Navigate to gate</p>
@@ -68,6 +74,7 @@ function FlightSummary({
                             value={editForm.departureTime}
                             onChange={(e) => handleChange('departureTime', e.target.value)}
                             className="edit-input"
+                            disabled={isSaving}
                         />
                         <span>, {editForm.date}</span>
                     </div>

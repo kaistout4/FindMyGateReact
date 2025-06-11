@@ -1,0 +1,35 @@
+[
+  {
+    "_id": "1",
+    "flightNumber": "United 2646",
+    "from": "SFO",
+    "to": "Portland",
+    "terminal": "T3",
+    "gate": "E5",
+    "departureTime": "6:23 PM",
+    "date": "April 13",
+    "authorId": "user1"
+  },
+  {
+    "_id": "2",
+    "flightNumber": "Air Canada 1245",
+    "from": "Portland",
+    "to": "Portland",
+    "terminal": "T5",
+    "gate": "C8",
+    "departureTime": "8:45 PM",
+    "date": "April 30",
+    "authorId": "user2"
+  },
+  {
+    "_id": "3",
+    "flightNumber": "Alaska 879",
+    "from": "Seattle",
+    "to": "Denver",
+    "terminal": "T2",
+    "gate": "B4",
+    "departureTime": "1:15 PM",
+    "date": "May 5",
+    "authorId": "user3"
+  }
+]
