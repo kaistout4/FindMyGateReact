@@ -26,7 +26,7 @@ function generateAuthToken(username: string, jwtSecret: string): Promise<string>
 
 export function registerAuthRoutes(app: express.Application, credentialsProvider: CredentialsProvider, userProvider: UserProvider) {
     app.post("/auth/register", async (req: Request, res: Response) => {
-        const { username, password } = req.body;
+        const { username, password, email } = req.body;
 
         if (!username || !password) {
             res.status(400).send({
@@ -40,7 +40,7 @@ export function registerAuthRoutes(app: express.Application, credentialsProvider
             const success = await credentialsProvider.registerUser(username, password);
             
             if (success) {
-                await userProvider.createUser(username);
+                await userProvider.createUser(username, email);
                 
                 const jwtSecret = req.app.locals.JWT_SECRET;
                 const token = await generateAuthToken(username, jwtSecret);

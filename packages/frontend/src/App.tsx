@@ -4,8 +4,8 @@ import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import FlightDetail from './pages/FlightDetail';
 import FlightHistory from './pages/FlightHistory';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { LoginPage } from './pages/LoginPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { ValidRoutes } from "csc437-monorepo-backend/src/shared/ValidRoutes.ts";
 import { type IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 import './App.css';
@@ -14,11 +14,19 @@ function App() {
     const [flights, setFlights] = useState<IApiFlightData[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [hasError, setHasError] = useState<boolean>(false);
+    const [authToken, setAuthToken] = useState<string | null>(null);
 
     useEffect(() => {
-        // Code in here will run when App is created
-        // (Note in dev mode App is created twice)
-        fetch("/api/flights")
+        if (!authToken) {
+            setIsLoading(false);
+            return;
+        }
+
+        fetch("/api/flights", {
+            headers: {
+                "Authorization": `Bearer ${authToken}`
+            }
+        })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -35,14 +43,19 @@ function App() {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, []);
+    }, [authToken]);
+
+    const handleAuthSuccess = (token: string) => {
+        setAuthToken(token);
+    };
 
     const handleUpdateFlight = async (id: string, updatedFlight: Partial<IApiFlightData>) => {
         try {
             const response = await fetch(`/api/flights/${id}`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
                 },
                 body: JSON.stringify(updatedFlight)
             });
@@ -87,11 +100,23 @@ function App() {
             <div className="app">
                 <Navigation />
                 <Routes>
-                    <Route path={ValidRoutes.HOME} element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} isLoading={isLoading} hasError={hasError} />} />
-                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={handleUpdateFlight} isLoading={isLoading} hasError={hasError} />} />
-                    <Route path={ValidRoutes.HISTORY} element={<FlightHistory flights={flights} isLoading={isLoading} hasError={hasError} />} />
-                    <Route path={ValidRoutes.LOGIN} element={<Login />} />
-                    <Route path={ValidRoutes.REGISTER} element={<Register />} />
+                    <Route path={ValidRoutes.HOME} element={
+                        <ProtectedRoute authToken={authToken}>
+                            <Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} isLoading={isLoading} hasError={hasError} />
+                        </ProtectedRoute>
+                    } />
+                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={
+                        <ProtectedRoute authToken={authToken}>
+                            <FlightDetail flights={flights} updateFlight={handleUpdateFlight} isLoading={isLoading} hasError={hasError} />
+                        </ProtectedRoute>
+                    } />
+                    <Route path={ValidRoutes.HISTORY} element={
+                        <ProtectedRoute authToken={authToken}>
+                            <FlightHistory flights={flights} isLoading={isLoading} hasError={hasError} />
+                        </ProtectedRoute>
+                    } />
+                    <Route path={ValidRoutes.LOGIN} element={<LoginPage onAuthSuccess={handleAuthSuccess} />} />
+                    <Route path={ValidRoutes.REGISTER} element={<LoginPage isRegistering={true} onAuthSuccess={handleAuthSuccess} />} />
                 </Routes>
             </div>
         </Router>

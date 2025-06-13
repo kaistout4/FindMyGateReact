@@ -3,6 +3,7 @@ import { MongoClient, Collection } from "mongodb";
 interface IUserDocument {
     id: string;
     username: string;
+    email?: string;
 }
 
 export class UserProvider {
@@ -13,12 +14,16 @@ export class UserProvider {
         this.collection = this.mongoClient.db().collection(collectionName);
     }
 
-    async createUser(username: string): Promise<string> {
+    async createUser(username: string, email?: string): Promise<string> {
         const id = Date.now().toString();
-        await this.collection.insertOne({
+        const userData: IUserDocument = {
             id,
             username
-        });
+        };
+        if (email) {
+            userData.email = email;
+        }
+        await this.collection.insertOne(userData);
         return id;
     }
 
