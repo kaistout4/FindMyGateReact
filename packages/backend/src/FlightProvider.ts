@@ -75,6 +75,10 @@ export class FlightProvider {
         return flightsWithAuthors as IApiFlightData[];
     }
 
+    async getFlightById(flightId: string): Promise<IFlightDocument | null> {
+        return await this.collection.findOne({ _id: flightId });
+    }
+
     async updateFlight(flightId: string, updatedFlightData: Partial<IFlightDocument>): Promise<number> {
         const result = await this.collection.updateOne(
             { _id: flightId },

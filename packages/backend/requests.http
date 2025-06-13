@@ -66,3 +66,85 @@ Content-Type: application/json
 
 ### GET non-existent endpoint - 404 (if no matching route)
 GET http://localhost:3000/api/nonexistent
+
+### Auth
+
+### POST /auth/register - 201 Created (successful registration)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password"
+}
+
+### POST /auth/register - 400 Bad Request (missing username)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "password": "password"
+}
+
+### POST /auth/register - 409 Conflict (username already exists)
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password"
+}
+
+### POST /auth/login - 200 OK (successful login)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "password"
+}
+
+### POST /auth/login - 401 Unauthorized (wrong password)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "wrongpassword"
+}
+
+### POST /auth/login - 401 Unauthorized (user doesn't exist)
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "password"
+}
+
+### Protected API Routes
+
+### GET /api/flights - 401 Unauthorized
+GET http://localhost:3000/api/flights
+
+### GET /api/flights - 200 OK
+GET http://localhost:3000/api/flights
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWF0IjoxNzQ5Nzg0MjQ5LCJleHAiOjE3NDk4NzA2NDl9.kKQgel8nCCKd2R3EZuSXpGneeQG8X_PzgEbA4GdrMPA
+
+### PATCH /api/flights/:id - 401 Unauthorized
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "flightNumber": "AA456"
+}
+
+### PATCH /api/flights/:id - 204 No Content (same user who created flight)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWF0IjoxNzQ5Nzg0MjQ5LCJleHAiOjE3NDk4NzA2NDl9.kKQgel8nCCKd2R3EZuSXpGneeQG8X_PzgEbA4GdrMPA
+
+{
+  "flightNumber": "AA456"
+}
+

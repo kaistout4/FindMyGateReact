@@ -74,19 +74,31 @@ export function registerFlightRoutes(app: express.Application, flightProvider: F
         console.log("PATCH /api/flights/:id - updating flight:", req.params.id);
         
         try {
-            if (!flightProvider) {
-                console.log("Flight provider not initialized, returning 503");
-                res.status(503).json({ error: "Database connection not ready" });
-                return;
-            }
-
             const flightId = req.params.id;
             const updatedFlightData = req.body;
+            const loggedInUsername = req.user?.username;
             
             if (!updatedFlightData || typeof updatedFlightData !== 'object') {
                 res.status(400).send({
                     error: "Bad Request",
                     message: "Request body must be a valid JSON object"
+                });
+                return;
+            }
+
+            const existingFlight = await flightProvider.getFlightById(flightId);
+            if (!existingFlight) {
+                res.status(404).send({
+                    error: "Not Found",
+                    message: "Flight does not exist"
+                });
+                return;
+            }
+
+            if (!loggedInUsername || existingFlight.authorId !== loggedInUsername) {
+                res.status(403).send({
+                    error: "Forbidden",
+                    message: "You can only edit your own flights"
                 });
                 return;
             }
@@ -113,16 +125,7 @@ export function registerFlightRoutes(app: express.Application, flightProvider: F
             console.log("Updating flight with data:", flightUpdateData);
             
             await waitDuration(1000);
-            const matchedCount = await flightProvider.updateFlight(flightId, flightUpdateData);
-            
-            if (matchedCount === 0) {
-                console.log("No flight found with id:", flightId);
-                res.status(404).send({
-                    error: "Not Found",
-                    message: "Flight does not exist"
-                });
-                return
-            }
+            await flightProvider.updateFlight(flightId, flightUpdateData);
             
             console.log("Flight updated successfully");
             res.status(204).send();
