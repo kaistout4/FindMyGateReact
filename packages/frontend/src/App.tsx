@@ -37,12 +37,29 @@ function App() {
             });
     }, []);
 
-    const updateFlight = (id: string, updatedFlight: Partial<IApiFlightData>) => {
-        setFlights(prevFlights => 
-            prevFlights.map(flight => 
-                flight.id === id ? { ...flight, ...updatedFlight } : flight
-            )
-        );
+    const handleUpdateFlight = async (id: string, updatedFlight: Partial<IApiFlightData>) => {
+        try {
+            const response = await fetch(`/api/flights/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedFlight)
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update flight');
+            }
+            
+            setFlights(prevFlights => 
+                prevFlights.map(flight => 
+                    flight.id === id ? { ...flight, ...updatedFlight } : flight
+                )
+            );
+        } catch (error) {
+            console.error('Error updating flight:', error);
+            throw error;
+        }
     };
 
     const addFlight = (flightNumber: string) => {
@@ -71,7 +88,7 @@ function App() {
                 <Navigation />
                 <Routes>
                     <Route path={ValidRoutes.HOME} element={<Home flights={flights} addFlight={addFlight} deleteFlight={deleteFlight} isLoading={isLoading} hasError={hasError} />} />
-                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={updateFlight} isLoading={isLoading} hasError={hasError} />} />
+                    <Route path={ValidRoutes.FLIGHT_DETAILS} element={<FlightDetail flights={flights} updateFlight={handleUpdateFlight} isLoading={isLoading} hasError={hasError} />} />
                     <Route path={ValidRoutes.HISTORY} element={<FlightHistory flights={flights} isLoading={isLoading} hasError={hasError} />} />
                     <Route path={ValidRoutes.LOGIN} element={<Login />} />
                     <Route path={ValidRoutes.REGISTER} element={<Register />} />

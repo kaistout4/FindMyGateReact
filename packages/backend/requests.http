@@ -1,0 +1,68 @@
+### Test API Endpoints
+
+### GET /api/flights - 200 OK (success)
+GET http://localhost:3000/api/flights
+
+### GET /api/hello - 200 OK (health check)
+GET http://localhost:3000/api/hello
+
+### PATCH /api/flights/:id - 204 No Content (successful update)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "flightNumber": "AA123",
+  "from": "LAX",
+  "to": "JFK",
+  "terminal": "2",
+  "gate": "A15"
+}
+
+### PATCH /api/flights/:id - 400 Bad Request (no body)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+### PATCH /api/flights/:id - 400 Bad Request (empty object)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "id": "1",
+  "author": {"id": "123", "username": "test"}
+}
+
+### PATCH /api/flights/:id - 404 Not Found (non-existent flight)
+PATCH http://localhost:3000/api/flights/999999
+Content-Type: application/json
+
+{
+  "flightNumber": "AA123"
+}
+
+### PATCH /api/flights/:id - 422 Unprocessable Entity (same origin/destination)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "from": "LAX",
+  "to": "LAX"
+}
+
+### PATCH /api/flights/:id - 422 Unprocessable Entity (invalid airport code)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "from": "TOOLONG"
+}
+
+### PATCH /api/flights/:id - 422 Unprocessable Entity (invalid flight number)
+PATCH http://localhost:3000/api/flights/1
+Content-Type: application/json
+
+{
+  "flightNumber": "A"
+}
+
+### GET non-existent endpoint - 404 (if no matching route)
+GET http://localhost:3000/api/nonexistent

@@ -8,7 +8,7 @@ import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFligh
 
 interface FlightDetailProps {
     flights: IApiFlightData[];
-    updateFlight: (id: string, updatedFlight: Partial<IApiFlightData>) => void;
+    updateFlight: (id: string, updatedFlight: Partial<IApiFlightData>) => Promise<void>;
     isLoading: boolean;
     hasError: boolean;
 }
@@ -53,16 +53,7 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
             setSaveError(null);
             
             try {
-                const response = await fetch("/api/flights");
-                if (!response.ok) {
-                    throw new Error('Failed to save flight');
-                }
-                
-                // Ignore response data as instructed
-                await response.json();
-                
-                // Update local state
-                updateFlight(id!, {
+                await updateFlight(id!, {
                     from: editForm.from,
                     to: editForm.to,
                     terminal: editForm.terminal,
