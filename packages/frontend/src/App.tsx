@@ -6,6 +6,7 @@ import FlightDetail from './pages/FlightDetail';
 import FlightHistory from './pages/FlightHistory';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { type FlightSearchResult } from './services/flightSearchService';
 import { ValidRoutes } from "csc437-monorepo-backend/src/shared/ValidRoutes.ts";
 import { type IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
 import './App.css';
@@ -22,27 +23,30 @@ function App() {
             return;
         }
 
+        setIsLoading(true);
+        setHasError(false);
+
         fetch("/api/flights", {
             headers: {
                 "Authorization": `Bearer ${authToken}`
             }
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setFlights(data);
-            })
-            .catch(error => {
-                console.error('Error fetching flights:', error);
-                setHasError(true);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            setFlights(data);
+        })
+        .catch(error => {
+            console.error('Error fetching flights:', error);
+            setHasError(true);
+        })
+        .finally(() => {
+            setIsLoading(false);
+        });
     }, [authToken]);
 
     const handleAuthSuccess = (token: string) => {
@@ -75,24 +79,69 @@ function App() {
         }
     };
 
-    const addFlight = (flightNumber: string) => {
-        const newFlight: IApiFlightData = {
-            id: Date.now().toString(),
-            flightNumber: `Airline ${flightNumber}`,
-            from: '',
-            to: '',
-            terminal: '',
-            gate: '',
-            departureTime: '',
-            date: '',
-            author: { id: 'temp-user', username: 'temp-user' }
-        };
-        setFlights(prevFlights => [...prevFlights, newFlight]);
-        return newFlight.id;
+    const addFlight = async (flightData: FlightSearchResult): Promise<string> => {
+        try {
+            const response = await fetch('/api/flights', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    flightNumber: flightData.flightNumber,
+                    from: flightData.from,
+                    to: flightData.to,
+                    terminal: flightData.terminal,
+                    gate: flightData.gate,
+                    departureTime: flightData.departureTime,
+                    date: flightData.date
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create flight');
+            }
+
+            const result = await response.json();
+            
+            if (authToken) {
+                const refreshResponse = await fetch("/api/flights", {
+                    headers: {
+                        "Authorization": `Bearer ${authToken}`
+                    }
+                });
+                if (refreshResponse.ok) {
+                    const refreshedFlights = await refreshResponse.json();
+                    setFlights(refreshedFlights);
+                }
+            }
+            
+            return result.id;
+        } catch (error) {
+            console.error('Error creating flight:', error);
+            throw error;
+        }
     };
 
-    const deleteFlight = (id: string) => {
-        setFlights(prevFlights => prevFlights.filter(flight => flight.id !== id));
+    const deleteFlight = async (id: string): Promise<void> => {
+        try {
+            const response = await fetch(`/api/flights/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete flight');
+            }
+
+            // Remove flight from local state after successful deletion
+            setFlights(prevFlights => prevFlights.filter(flight => flight.id !== id));
+        } catch (error) {
+            console.error('Error deleting flight:', error);
+            throw error;
+        }
     };
 
     return (

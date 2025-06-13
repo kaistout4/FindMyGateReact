@@ -59,9 +59,11 @@ export function registerFlightRoutes(app: express.Application, flightProvider: F
                 return;
             }
             
+            const loggedInUsername = req.user?.username;
+            
             await waitDuration(1000);
             console.log("Fetching flights from database...");
-            const flights = await flightProvider.getAllFlights();
+            const flights = await flightProvider.getFlightsByUser(loggedInUsername);
             console.log(`Retrieved ${flights.length} flights from database`);
             res.json(flights);
         } catch (error) {
@@ -132,6 +134,118 @@ export function registerFlightRoutes(app: express.Application, flightProvider: F
         } catch (error) {
             console.error("Error updating flight:", error);
             res.status(500).json({ error: "Failed to update flight" });
+        }
+    });
+
+    app.post("/api/flights", async (req: express.Request, res: express.Response): Promise<void> => {
+        console.log("POST /api/flights - creating new flight");
+        
+        try {
+            if (!flightProvider) {
+                console.log("Flight provider not initialized, returning 503");
+                res.status(503).json({ error: "Database connection not ready" });
+                return;
+            }
+
+            const flightData = req.body;
+            const loggedInUsername = req.user?.username;
+            
+            if (!flightData || typeof flightData !== 'object') {
+                res.status(400).send({
+                    error: "Bad Request",
+                    message: "Request body must be a valid JSON object"
+                });
+                return;
+            }
+
+            if (!loggedInUsername) {
+                res.status(401).send({
+                    error: "Unauthorized",
+                    message: "User authentication required"
+                });
+                return;
+            }
+
+            const validationError = validateFlightData(flightData);
+            if (validationError) {
+                res.status(422).send({
+                    error: "Unprocessable Entity",
+                    message: validationError
+                });
+                return;
+            }
+            
+            const newFlightId = await flightProvider.createFlight({
+                flightNumber: flightData.flightNumber,
+                from: flightData.from,
+                to: flightData.to,
+                terminal: flightData.terminal,
+                gate: flightData.gate,
+                departureTime: flightData.departureTime,
+                date: flightData.date,
+                authorId: loggedInUsername
+            });
+            
+            res.status(201).json({ id: newFlightId });
+        } catch (error) {
+            console.error("Error creating flight:", error);
+            res.status(500).json({ error: "Failed to create flight" });
+        }
+    });
+
+    app.delete("/api/flights/:id", async (req: express.Request, res: express.Response): Promise<void> => {
+        console.log("DELETE /api/flights/:id - deleting flight:", req.params.id);
+        
+        try {
+            if (!flightProvider) {
+                console.log("Flight provider not initialized, returning 503");
+                res.status(503).json({ error: "Database connection not ready" });
+                return;
+            }
+
+            const flightId = req.params.id;
+            const loggedInUsername = req.user?.username;
+            
+            if (!loggedInUsername) {
+                res.status(401).send({
+                    error: "Unauthorized",
+                    message: "User authentication required"
+                });
+                return;
+            }
+
+            const existingFlight = await flightProvider.getFlightById(flightId);
+            if (!existingFlight) {
+                res.status(404).send({
+                    error: "Not Found",
+                    message: "Flight does not exist"
+                });
+                return;
+            }
+
+            if (existingFlight.authorId !== loggedInUsername) {
+                res.status(403).send({
+                    error: "Forbidden",
+                    message: "You can only delete your own flights"
+                });
+                return;
+            }
+            
+            const deletedCount = await flightProvider.deleteFlight(flightId);
+            
+            if (deletedCount === 0) {
+                res.status(404).send({
+                    error: "Not Found",
+                    message: "Flight does not exist"
+                });
+                return;
+            }
+            
+            console.log("Flight deleted successfully");
+            res.status(204).send();
+        } catch (error) {
+            console.error("Error deleting flight:", error);
+            res.status(500).json({ error: "Failed to delete flight" });
         }
     });
 }

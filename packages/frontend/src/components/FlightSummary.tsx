@@ -65,7 +65,14 @@ function FlightSummary({
                             disabled={isSaving}
                         />
                     </div>
-                    <p>Navigate to gate</p>
+                    <a 
+                        href={`https://www.google.com/maps/search/${editForm.from}+airport+terminal+${editForm.terminal}+gate+${editForm.gate}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navigate-gate-link"
+                    >
+                        Navigate to gate
+                    </a>
                     <div className="form-group">
                         <label htmlFor="departureTime">Departs:</label>
                         <input 
@@ -84,7 +91,14 @@ function FlightSummary({
                     <p>From: {flight.from} → {flight.to}</p>
                     <p>Terminal: {flight.terminal}</p>
                     <p>Gate: {flight.gate}</p>
-                    <p>Navigate to gate</p>
+                    <a 
+                        href={`https://www.google.com/maps/search/${flight.from}+airport+terminal+${flight.terminal}+gate+${flight.gate}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navigate-gate-link"
+                    >
+                        Navigate to gate
+                    </a>
                     <p>Departs: {flight.departureTime}, {flight.date}</p>
                 </>
             )}

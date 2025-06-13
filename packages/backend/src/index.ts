@@ -48,8 +48,10 @@ app.get("/api/hello", (req: Request, res: Response) => {
     res.send("Hello, World");
 });
 
-app.get(Object.values(ValidRoutes), (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "..", STATIC_DIR, "index.html"));
+Object.values(ValidRoutes).forEach(route => {
+    app.get(route, (req: Request, res: Response) => {
+        res.sendFile(path.join(__dirname, "..", STATIC_DIR, "index.html"));
+    });
 });
 
 app.listen(PORT, () => {

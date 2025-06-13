@@ -5,6 +5,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import FlightSummary from '../components/FlightSummary';
 import AdditionalInfo from '../components/AdditionalInfo';
 import type { IApiFlightData } from "csc437-monorepo-backend/src/common/ApiFlightData.ts";
+import { getAirlineLogo } from '../utils/airlineLogos';
 
 interface FlightDetailProps {
     flights: IApiFlightData[];
@@ -64,7 +65,7 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                 setIsEditing(false);
                 setSaveError(null);
             } catch (error) {
-                setSaveError('Failed to save flight. Please try again.');
+                setSaveError('Failed to save flight.');
             } finally {
                 setIsSaving(false);
             }
@@ -120,7 +121,15 @@ function FlightDetail({ flights, updateFlight, isLoading, hasError }: FlightDeta
                 
                             <div className="airline-logo">
                                 <div className="logo-circle">
-                                    <span>Airline logo</span>
+                                    {getAirlineLogo(flight.flightNumber) ? (
+                                        <img 
+                                            src={getAirlineLogo(flight.flightNumber) ?? ""} 
+                                            alt={`${flight.flightNumber.split(' ')[0]} logo`}
+                                            className="airline-logo-img"
+                                        />
+                                    ) : (
+                                        <span>Airline logo</span>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -75,8 +75,62 @@ export class FlightProvider {
         return flightsWithAuthors as IApiFlightData[];
     }
 
+    async getFlightsByUser(username: string | undefined): Promise<IApiFlightData[]> {
+        const matchStage = username ? { $match: { authorId: username } } : { $match: {} };
+        
+        const flightsWithAuthors = await this.collection.aggregate([
+            matchStage,
+            {
+                // Join with users collection
+                $lookup: {
+                    from: 'users',
+                    localField: 'authorId',
+                    foreignField: '_id',
+                    as: 'authorData'
+                }
+            },
+            {
+                // Unwind the author array (since lookup returns an array)
+                $unwind: {
+                    path: '$authorData',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                // Transform the output to match IApiFlightData
+                $project: {
+                    id: '$_id',
+                    flightNumber: 1,
+                    from: 1,
+                    to: 1,
+                    terminal: 1,
+                    gate: 1,
+                    departureTime: 1,
+                    date: 1,
+                    author: {
+                        id: '$authorData._id',
+                        username: '$authorData.username'
+                    }
+                }
+            }
+        ]).toArray();
+
+        return flightsWithAuthors as IApiFlightData[];
+    }
+
     async getFlightById(flightId: string): Promise<IFlightDocument | null> {
         return await this.collection.findOne({ _id: flightId });
+    }
+
+    async createFlight(flightData: Omit<IFlightDocument, '_id'>): Promise<string> {
+        const newFlightId = Date.now().toString();
+        const flightWithId = {
+            _id: newFlightId,
+            ...flightData
+        };
+        
+        await this.collection.insertOne(flightWithId);
+        return newFlightId;
     }
 
     async updateFlight(flightId: string, updatedFlightData: Partial<IFlightDocument>): Promise<number> {
@@ -86,5 +140,10 @@ export class FlightProvider {
         );
         
         return result.matchedCount;
+    }
+
+    async deleteFlight(flightId: string): Promise<number> {
+        const result = await this.collection.deleteOne({ _id: flightId });
+        return result.deletedCount;
     }
 }
